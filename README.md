@@ -2,7 +2,7 @@
 
 ## Clone this project
 
-1. `git clone --recurse-submodules https://github.com/Normal-OJ/Normal-OJ.git`
+1. `git clone --recurse-submodules https://github.com/2025-NTNU-Software-Engineering-Team-1/Normal-OJ-2025Team1.git`
 2. `cd Normal-OJ`
 3. `git submodule foreach --recursive git checkout main`
 
