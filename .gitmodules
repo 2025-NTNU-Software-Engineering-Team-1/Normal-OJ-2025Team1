@@ -1,9 +1,9 @@
 [submodule "Back-End"]
 	path = Back-End
-	url = git@github.com:Camel031/Back-End-2025Team1.git
+	url = https://github.com/2025-NTNU-Software-Engineering-Team-1/Back-End-2025Team1.git
 [submodule "Sandbox"]
 	path = Sandbox
-	url = git@github.com:Camel031/Sandbox-2025Team1.git
+	url = https://github.com/2025-NTNU-Software-Engineering-Team-1/Sandbox-2025Team1.git
 [submodule "new-front-end"]
 	path = new-front-end
-	url = git@github.com:Camel031/new-front-end-2025Team1.git
+	url = https://github.com/2025-NTNU-Software-Engineering-Team-1/new-front-end-2025Team1.git
