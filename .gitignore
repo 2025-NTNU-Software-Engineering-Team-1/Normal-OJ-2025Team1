@@ -10,3 +10,5 @@ MongoDB
 .env
 # Redis
 redis-data/
+# Poetry Log Files
+*.log
