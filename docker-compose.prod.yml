@@ -16,16 +16,14 @@ services:
     env_file:
       - .secret/mongo-express.env
   web:
-    build:
-      target: production
+    image: ${WEB_IMAGE:-asia-east1-docker.pkg.dev/noj-team1/backend/noj-web:latest}
     restart: unless-stopped
     env_file:
       - .secret/web.env
     volumes:
       - ./Back-End/gunicorn_error.log:/app/gunicorn_error.log
   sandbox:
-    build:
-      dockerfile: Dockerfile.prod
+    image: ${SANDBOX_IMAGE:-asia-east1-docker.pkg.dev/noj-team1/sandbox/noj-sandbox:latest}
     restart: unless-stopped
     env_file:
       - .secret/sandbox.env
