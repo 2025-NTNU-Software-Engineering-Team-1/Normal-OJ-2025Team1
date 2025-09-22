@@ -74,11 +74,7 @@ def getFiles():
 
 def updateSlack(msg):
     headers = {'Authorization': f'Bearer {TOKEN}'}
-    params = {
-        'channel': CHANNEL_ID,
-        'text': msg,
-        'pretty': '1'
-    }
+    params = {'channel': CHANNEL_ID, 'text': msg, 'pretty': '1'}
     r = requests.get(
         'https://slack.com/api/chat.postMessage',
         headers=headers,
