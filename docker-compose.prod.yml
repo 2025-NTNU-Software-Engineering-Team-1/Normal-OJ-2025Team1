@@ -32,3 +32,12 @@ services:
       - ./Sandbox/logs:/app/logs
   redis:
     restart: unless-stopped
+
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
+    restart: unless-stopped
+    env_file:
+      - .secret/minio.env
+    command: ["server", "/data", "--console-address", ":9001"]
+    volumes:
+      - /opt/noj/minio:/data
