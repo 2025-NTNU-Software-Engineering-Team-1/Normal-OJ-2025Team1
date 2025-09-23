@@ -1,0 +1,54 @@
+name: Deploy Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Docker image tag to deploy
+        required: true
+        default: latest
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    env:
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_PATH: /opt/noj/app
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Resolve image tags
+        run: |
+          TAG="${{ github.event.inputs.tag }}"
+          echo "WEB_IMAGE=asia-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/backend/noj-web:${TAG}" >> "$GITHUB_ENV"
+          echo "SANDBOX_IMAGE=asia-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sandbox/noj-sandbox:${TAG}" >> "$GITHUB_ENV"
+          echo "CCPP_IMAGE=asia-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sandbox/noj-c-cpp:${TAG}" >> "$GITHUB_ENV"
+          echo "PY3_IMAGE=asia-east1-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/sandbox/noj-py3:${TAG}" >> "$GITHUB_ENV"
+
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      - name: Add deploy host to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+      - name: Prepare remote directories
+        run: |
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" 'mkdir -p "$DEPLOY_PATH"/.config "$DEPLOY_PATH"/Sandbox/.config "$DEPLOY_PATH"/Back-End /opt/noj/mongodb /opt/noj/redis /opt/noj/minio /opt/noj/sandbox/submissions /opt/noj/sandbox/logs && touch "$DEPLOY_PATH"/Back-End/gunicorn_error.log'
+
+      - name: Sync compose and config files
+        run: |
+          rsync -avz --delete --exclude '.git/' --exclude '.secret/' --exclude '.env'             docker-compose.yml docker-compose.prod.yml deploy.sh             "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/"
+          rsync -avz --delete --exclude '.git/' .config/ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/.config/"
+          rsync -avz --delete --exclude '.git/' Sandbox/.config/ "$DEPLOY_USER@$DEPLOY_HOST:$DEPLOY_PATH/Sandbox/.config/"
+
+      - name: Execute remote deploy
+        run: |
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" "cd '$DEPLOY_PATH' && WEB_IMAGE='$WEB_IMAGE' SANDBOX_IMAGE='$SANDBOX_IMAGE' CCPP_IMAGE='$CCPP_IMAGE' PY3_IMAGE='$PY3_IMAGE' ./deploy.sh"
