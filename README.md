@@ -2,10 +2,13 @@
 
 ## Clone this project
 
-1. `git clone --recurse-submodules https://github.com/2025-NTNU-Software-Engineering-Team-1/Normal-OJ-2025Team1.git`
-2. `cd Normal-OJ`
-3. `git submodule foreach --recursive git checkout main`
+```bash
+git clone --recurse-submodules https://github.com/2025-NTNU-Software-Engineering-Team-1/Normal-OJ-2025Team1.git
 
+cd Normal-OJ-2025Team1
+
+git submodule foreach --recursive git checkout main
+```
 ## Overview of the project
 
 NOJ consists of three parts:
@@ -21,8 +24,10 @@ You may also be interested in this [Introduction](https://github.com/Normal-OJ).
 
 ### Setup Backend
 
-Run `mkdir -p ./Back-End/minio/data`.
-
+```bash
+# Run 
+mkdir -p ./Back-End/minio/data
+```
 ### Setup Sandbox
 
 1. Make sure you have Docker installed and running.
@@ -35,11 +40,17 @@ Run `mkdir -p ./Back-End/minio/data`.
 
 #### Build images and start
 
-`docker compose up -d`
+```bash
+# start
+docker compose up -d
+```
 
 or if you want to rebuild the images
 
-`docker compose up --build -d`
+```bash
+# rebuild
+docker compose up --build -d
+```
 
 When you run `docker compose up`, Docker Compose automatically combines `docker compose.yml` and `docker compose.override.yml`. You can check the `docker compose.override.yml` file, and you'll see the frontend is running locally on port 8080.
 
