@@ -12,9 +12,10 @@ git submodule foreach --recursive git checkout main
 ## Overview of the project
 
 NOJ consists of three parts:
-1. **[Backend](https://github.com/Normal-OJ/Back-End)**: Python web server, provides RESTful API, communicates with the database and the sandbox.
-2. **[Frontend](https://github.com/Normal-OJ/new-front-end)**: The user interface that interacts with the backend, written in Vue.js.
-3. **[Sandbox](https://github.com/Normal-OJ/Sandbox)**: Takes the user's submission, compiles and executes the code, and returns the result to the backend.
+1. **[Backend](https://github.com/2025-NTNU-Software-Engineering-Team-1/Back-End-2025Team1)**: Python web server, provides RESTful API, communicates with the database and the sandbox.
+2. **[Frontend](https://github.com/2025-NTNU-Software-Engineering-Team-1/new-front-end-2025Team1)**: The user interface that interacts with the backend, written in Vue.js.
+3. **[Sandbox](https://github.com/2025-NTNU-Software-Engineering-Team-1/Sandbox-2025Team1)**: Takes the user's submission, compiles and executes the code, and returns the result to the backend.
+4. **[C_Sandbox](https://github.com/2025-NTNU-Software-Engineering-Team-1/C-Sandbox-2025Team1)**: something you need to know.
 
 Each subfolder in this project corresponds to a specific part of NOJ (Backend, Frontend, Sandbox) and includes its own package manager, such as `pnpm` or `poetry`. Ideally, each part could be developed separately and locally, please refer to the `README.md` file in each subfolder.
 
@@ -31,7 +32,12 @@ mkdir -p ./Back-End/minio/data
 ### Setup Sandbox
 
 1. Make sure you have Docker installed and running.
-2. cd to `Sandbox` folder, run `./build.sh`, this will build the images you need to compile and execute user's submission.
+2. cd to `Sandbox` folder, run `./build.sh`, this will build the images you 
+need to compile and execute user's submission.
+```bash
+cd Sandbox
+./build.sh
+```
 3. Replace `working_dir` in `Sandbox/.config/submission.json` as stated in the logs of the previous step.
   - Recommend to use `/path/to/Normal-OJ/Sandbox/submissions`.
   - This directory is for storing the user's submission.
@@ -62,9 +68,9 @@ You can skip this if you will not develop features related to Problems and Submi
 
 Refer to the `docker-compose.override.yml` file for the following configurations:
 
-1. Open the MinIO console at http://localhost:9001 and log in using the username (`MINIO_ROOT_USER`) and password (`MINIO_ROOT_PASSWORD`) specified in the yml file.
-2. In the MinIO console, navigate to **Object Browser** and create a bucket with the name specified (`MINIO_BUCKET`).
-3. In the MinIO console, navigate to **Access Keys** and create an access key (`MINIO_ACCESS_KEY`) and secret key (`MINIO_SECRET_KEY`).
+1. Open the MinIO console at http://localhost:9001 and log in using the username (`MINIO_ROOT_USER = noj`) and password (`MINIO_ROOT_PASSWORD = normal-oj-testing`) specified in the yml file.
+2. In the MinIO console, navigate to **Object Browser** and create a bucket with the name specified (`MINIO_BUCKET = normal-oj-testing`).
+3. In the MinIO console, navigate to **Access Keys** and create an access key (`MINIO_ACCESS_KEY = normal-oj-testing`) and secret key (`MINIO_SECRET_KEY = normal-oj-testing-secret`).
 
 #### Other commands
 
