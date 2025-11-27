@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Function Only Submission Flow</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .mermaid {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Function Only Submission Flow</h1>
+    <pre class="mermaid">
+sequenceDiagram
+    participant User
+    participant Frontend as Frontend (submit.vue)
+    participant BackendAPI as Backend API (app.py)
+    participant BackendModel as Backend Model (submission.py)
+    participant SandboxAPI as Sandbox API (app.py)
+    participant Dispatcher as Sandbox Dispatcher (dispatcher.py)
+    participant BuildStrategy as Build Strategy (build_strategy.py)
+    participant Runner as Submission Runner (runner/submission.py)
+
+    User->>Frontend: Upload Code (Zip/File)
+    Frontend->>Frontend: Validate Format (acceptedFormat)
+    Frontend->>BackendAPI: POST /submission/ (create_submission)
+    BackendAPI->>BackendModel: Submission.add()
+    BackendModel-->>BackendAPI: submission_id
+    BackendAPI-->>Frontend: submission_id
+
+    Frontend->>BackendAPI: PUT /submission/{id} (update_submission)
+    BackendAPI->>BackendModel: submission.submit(code)
+    BackendModel->>BackendModel: _put_code(code) (Upload to MinIO)
+    BackendModel->>BackendModel: send()
+    BackendModel->>SandboxAPI: POST /submit/{id}
+
+    SandboxAPI->>Dispatcher: prepare_submission_dir()
+    Dispatcher->>Dispatcher: file_manager.extract()
+    SandboxAPI->>Dispatcher: handle(submission_id)
+    Dispatcher->>Dispatcher: get_problem_meta()
+    
+    Note over Dispatcher: Detects executionMode="functionOnly"<br/>and buildStrategy="makeFunctionOnly"
+
+    Dispatcher->>Dispatcher: _prepare_with_build_strategy()
+    Dispatcher->>BuildStrategy: prepare_function_only_submission()
+    BuildStrategy->>BuildStrategy: Extract 'makefile' asset
+    BuildStrategy->>BuildStrategy: Read student code (main.c/cpp/py)
+    BuildStrategy->>BuildStrategy: Write to function.h / student_impl.py
+    BuildStrategy-->>Dispatcher: BuildPlan (needs_make=True)
+
+    Dispatcher->>Dispatcher: queue.put(job.Build)
+    Dispatcher->>Dispatcher: queue.put(job.Execute)
+
+    loop Dispatcher Run Loop
+        Dispatcher->>Dispatcher: job = queue.get()
+        
+        alt job.Build
+            Dispatcher->>Dispatcher: build()
+            Dispatcher->>Runner: build_with_make()
+            Runner-->>Dispatcher: Result (AC/CE)
+        else job.Execute
+            Dispatcher->>Dispatcher: create_container()
+            Dispatcher->>Runner: run()
+            Runner-->>Dispatcher: Result (Output/Status)
+            Dispatcher->>Dispatcher: on_case_complete()
+        end
+    end
+
+    Dispatcher->>Dispatcher: on_submission_complete()
+    Dispatcher->>BackendAPI: PUT /submission/{id}/complete
+    BackendAPI->>BackendModel: on_submission_complete()
+    BackendModel->>BackendModel: process_result()
+    BackendModel->>BackendModel: finish_judging()
+    </pre>
+</body>
+</html>
