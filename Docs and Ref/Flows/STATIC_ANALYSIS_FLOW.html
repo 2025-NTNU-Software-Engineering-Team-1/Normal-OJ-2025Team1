@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Static Analysis Flow</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .mermaid {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Static Analysis Flow</h1>
+    <pre class="mermaid">
+graph TD
+    A[Dispatcher: Submission Received] --> B[Fetch Problem Rules]
+    B --> C{Rules Exist?}
+    
+    C -->|No 404| SKIP1[Skip SA]
+    C -->|Empty Rules| SKIP1
+    C -->|Yes| D{Submission Mode?}
+    
+    D -->|CODE| E[Analyze Single File]
+    D -->|ZIP| F[Analyze ZIP Sources]
+    
+    E --> E1[Get main.c/cpp/py path]
+    E1 --> G{Language?}
+    
+    F --> F1[Check for disallowed files<br/>.exe .so .dll .jar]
+    F1 --> F2{Disallowed Found?}
+    F2 -->|Yes| FAIL1[StaticAnalysisError<br/>Disallowed file type]
+    F2 -->|No| F3{Has Makefile?}
+    F3 -->|Yes| F4[Parse Makefile<br/>Extract source files]
+    F3 -->|No| F5[Scan by extension<br/>Collect all .c/.cpp/.py]
+    F4 --> F6[Collected Sources]
+    F5 --> F6
+    F6 --> F7{Language Consistent?}
+    F7 -->|No| FAIL2[StaticAnalysisError<br/>Mixed language files]
+    F7 -->|Yes| G
+    
+    G -->|Python| H[_analyze_python]
+    G -->|C/C++| I[_analyze_c_cpp]
+    
+    H --> H1[Parse AST for each file]
+    H1 --> H2{Syntax Error?}
+    H2 -->|Yes| FAIL3[Mark Failed<br/>Syntax Error]
+    H2 -->|No| H3[Walk AST Nodes]
+    H3 --> H4[Collect Facts]
+    H4 --> H5[imports: ast.Import<br/>ast.ImportFrom]
+    H4 --> H6[functions: ast.Call]
+    H4 --> H7[syntax: Other node types]
+    H5 --> CHECK
+    H6 --> CHECK
+    H7 --> CHECK
+    
+    I --> I1{libclang Available?}
+    I1 -->|No| SKIP2[Mark Skipped<br/>libclang not available]
+    I1 -->|Yes| I2[Create clang.Index]
+    I2 --> I3[Parse TU for each file]
+    I3 --> I4[Walk Cursor Tree]
+    I4 --> I5[Collect Facts]
+    I5 --> I6[imports: INCLUSION_DIRECTIVE]
+    I5 --> I7[functions: CALL_EXPR]
+    I6 --> CHECK
+    I7 --> CHECK
+    
+    CHECK[Check Violations]
+    CHECK --> CH1{Blacklist Check}
+    CH1 --> CH2[used_items ∩ blacklist]
+    CH2 --> CH3{Violations?}
+    CH3 -->|Yes| FAIL4[Mark Failed<br/>Add to violations]
+    CH3 -->|No| CH4{Whitelist Check}
+    CH4 --> CH5[used_items - whitelist]
+    CH5 --> CH6{Violations?}
+    CH6 -->|Yes| FAIL4
+    CH6 -->|No| PASS
+    
+    PASS[Build SA Payload<br/>status=pass]
+    SKIP1 --> SKIP[Build SA Payload<br/>status=skip]
+    SKIP2 --> SKIP
+    FAIL1 --> FAIL[Build SA Payload<br/>status=fail]
+    FAIL2 --> FAIL
+    FAIL3 --> FAIL
+    FAIL4 --> FAIL
+    
+    SKIP --> RET1[Return success=True<br/>Continue to Build]
+    PASS --> RET1
+    
+    FAIL --> FAILACT[Build CE Task Content<br/>All cases marked CE]
+    FAILACT --> RET2[Return success=False<br/>fail_tasks with SA stderr]
+    
+    RET1 --> END1[Dispatcher: Proceed to Build Strategy]
+    RET2 --> END2[Dispatcher: on_submission_complete<br/>Report CE to Backend]
+    
+    style H fill:#e1f5fe
+    style I fill:#fff3e0
+    style CHECK fill:#f3e5f5
+    style PASS fill:#c8e6c9
+    style SKIP fill:#fff9c4
+    style FAIL fill:#ffcdd2
+    style FAIL1 fill:#ffcdd2
+    style FAIL2 fill:#ffcdd2
+    style FAIL3 fill:#ffcdd2
+    style FAIL4 fill:#ffcdd2
+    style END1 fill:#c8e6c9
+    style END2 fill:#ffcdd2
+    </pre>
+</body>
+
+</html>

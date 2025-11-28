@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Build Strategy Flow</title>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .mermaid {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Build Strategy Flow</h1>
+    <pre class="mermaid">
+graph TD
+    A[Dispatcher: handle Submission] --> B{Determine buildStrategy}
+    
+    B -->|BuildStrategy.COMPILE| C[compile]
+    B -->|BuildStrategy.MAKE_NORMAL| D[makeNormal]
+    B -->|BuildStrategy.MAKE_FUNCTION_ONLY| E[makeFunctionOnly]
+    B -->|BuildStrategy.MAKE_INTERACTIVE| F[makeInteractive]
+    
+    C --> C1[Direct Compile]
+    C1 --> C2[SubmissionRunner.compile]
+    C2 --> Z[Execute Tests]
+    
+    D --> D1[prepare_make_normal]
+    D1 --> D2{Language?}
+    D2 -->|Python| D3[Check main.py exists]
+    D2 -->|C/C++| D4[Check Makefile exists]
+    D3 --> D5[Return BuildPlan<br/>needs_make=False]
+    D4 --> D6[Return BuildPlan<br/>needs_make=True<br/>finalize=_finalize_compiled_binary]
+    D5 --> Z
+    D6 --> D7[Create Build Job]
+    D7 --> D8[SubmissionRunner.build_with_make]
+    D8 --> D9{Build Success?}
+    D9 -->|Yes| D10[Execute finalize]
+    D9 -->|No| X[Clear Queue<br/>Report CE]
+    D10 --> D11[Check a.out exists]
+    D11 --> D12[Ensure single executable]
+    D12 --> D13[Rename a.out → main]
+    D13 --> D14[chmod +x main]
+    D14 --> Z
+    
+    E --> E1[prepare_function_only_submission]
+    E1 --> E2[Read student code<br/>main.c/cpp/py]
+    E2 --> E3[Download teacher makefile.zip]
+    E3 --> E4[Reset src directory]
+    E4 --> E5[Extract makefile.zip to src/]
+    E5 --> E6{Language?}
+    E6 -->|C/C++| E7[Write student code to<br/>function.h]
+    E6 -->|Python| E8[Write student code to<br/>student_impl.py]
+    E7 --> E9[Return BuildPlan<br/>needs_make=True<br/>finalize=_finalize_function_only]
+    E8 --> E9
+    E9 --> E10[Create Build Job]
+    E10 --> E11[SubmissionRunner.build_with_make]
+    E11 --> E12{Build Success?}
+    E12 -->|Yes| E13[Execute finalize]
+    E12 -->|No| X
+    E13 --> E14{Language?}
+    E14 -->|C/C++| E15[Rename a.out → main]
+    E14 -->|Python| E16[Check main.py exists]
+    E15 --> Z
+    E16 --> Z
+    
+    F --> F1[prepare_make_interactive]
+    F1 --> F2[_prepare_teacher_artifacts]
+    F2 --> F3[Download teacher_file]
+    F3 --> F4[Write to teacher/main.c/cpp/py]
+    F4 --> F5{Teacher Language?}
+    F5 -->|Python| F6[Skip teacher compile]
+    F5 -->|C/C++| F7[Compile teacher with<br/>SubmissionRunner.compile_at_path]
+    F7 --> F8{Compile Success?}
+    F8 -->|No| Y[Raise BuildStrategyError<br/>teacher compile failed]
+    F8 -->|Yes| F9[Create Teacher_main binary]
+    F9 --> F10[Link/Copy to teacher/main]
+    F6 --> F11[_build_plan_for_student_artifacts]
+    F10 --> F11
+    F11 --> F12{Student Language?}
+    F12 -->|Python| F13[Check main.py]
+    F12 -->|C/C++| F14{Has Makefile?}
+    F14 -->|Yes| F15[Return BuildPlan<br/>needs_make=True]
+    F14 -->|No| F16[Compile main.c/cpp]
+    F13 --> Z2[Interactive Execute]
+    F15 --> F17[Build Job → make]
+    F16 --> Z2
+    F17 --> F18[Finalize: rename a.out → main]
+    F18 --> Z2
+    
+    Y --> END1[Report CE to Backend]
+    X --> END1
+    Z --> END2[Queue Execute Jobs]
+    Z2 --> END3[Queue Interactive Execute Jobs]
+    
+    style C fill:#e1f5fe
+    style D fill:#fff3e0
+    style E fill:#f3e5f5
+    style F fill:#e8f5e9
+    style X fill:#ffcdd2
+    style Y fill:#ffcdd2
+    style Z fill:#c8e6c9
+    style Z2 fill:#c8e6c9
+    </pre>
+</body>
+
+</html>
