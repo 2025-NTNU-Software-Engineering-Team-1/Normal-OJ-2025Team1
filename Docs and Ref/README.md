@@ -8,24 +8,34 @@ Complete documentation for the Normal-OJ Sandbox system.
 
 ```
 Docs and Ref/
-├── Core/           # System architecture and API reference
-├── Guides/         # Implementation guides
-├── Interactive/    # Interactive mode documentation
-└── Flows/          # Flow diagrams (HTML + markdown)
+├── API/            # API reference documentation
+├── Architecture/   # System architecture, schemas, and core concepts
+├── Guides/         # Implementation and operational guides
+├── Flows/          # Flow diagrams (HTML + markdown)
+└── DevNotes/       # Transient analysis, debug notes, and plans
 ```
 
 ---
 
-## 📘 Core Documentation
+## 🏛️ Architecture & Core
 
-System architecture and API reference.
+System architecture, schemas, and core concepts.
 
 | Document | Description |
 |----------|-------------|
-| [ARCHITECTURE.md](./Core/ARCHITECTURE.md) | System architecture overview |
-| [STRUCTURE.md](./Core/STRUCTURE.md) | Codebase structure |
-| [API_REFERENCE.md](./Core/API_REFERENCE.md) | Complete API documentation (Backend & Sandbox) |
-| [DATABASE_SCHEMA.md](./Core/DATABASE_SCHEMA.md) | MongoDB and Redis schema reference |
+| [SystemArchitecture.md](./Architecture/SystemArchitecture.md) | System architecture overview |
+| [DirectoryStructure.md](./Architecture/DirectoryStructure.md) | Codebase structure |
+| [DatabaseSchema.md](./Architecture/DatabaseSchema.md) | MongoDB and Redis schema reference |
+| [InteractiveMode.md](./Architecture/InteractiveMode.md) | Interactive mode architecture |
+| [PathTranslation.md](./Architecture/PathTranslation.md) | Path translation logic (Host vs Container) |
+
+---
+
+## 🔌 API Reference
+
+| Document | Description |
+|----------|-------------|
+| [Reference.md](./API/Reference.md) | Complete API documentation (Backend & Sandbox) |
 
 ---
 
@@ -45,20 +55,7 @@ Detailed guides for each system component.
 | [TESTING_GUIDE.md](./Guides/TESTING_GUIDE.md) | Testing strategy (pytest, Playwright, CI/CD, coverage) |
 | [FRONTEND_DEV_GUIDE.md](./Guides/FRONTEND_DEV_GUIDE.md) | Frontend development guide (Vue 3, TypeScript, routing, API) |
 | [ARTIFACT_GUIDE.md](./Guides/ARTIFACT_GUIDE.md) | Artifact collection (compiled binary, test outputs) |
-
----
-
-## 🔐 Interactive Mode
-
-Complete documentation for Interactive execution mode.
-
-| Document | Description |
-|----------|-------------|
-| [INTERACTIVE_MODE_FLOW.md](./Interactive/INTERACTIVE_MODE_FLOW.md) | Interactive mode architecture and flow |
-| [INTERACTIVE_PERMISSIONS_GUIDE.md](./Interactive/INTERACTIVE_PERMISSIONS_GUIDE.md) | Permissions control guide (UID/GID, file permissions) |
-| [INTERACTIVE_PERMISSIONS_ANALYSIS.md](./Interactive/INTERACTIVE_PERMISSIONS_ANALYSIS.md) | **Latest** permissions analysis (v2.0) |
-
-**Flow Diagram**: [INTERACTIVE_MODE_FLOW.html](./Flows/INTERACTIVE_MODE_FLOW.html)
+| [InteractivePermissions.md](./Guides/InteractivePermissions.md) | Interactive mode permissions guide |
 
 ---
 
@@ -81,29 +78,36 @@ Interactive Mermaid flowcharts (HTML) with supporting documentation (Markdown).
 
 | Document | Description |
 |----------|-------------|
+| [InteractiveMode.md](./Flows/InteractiveMode.md) | Interactive mode flow explanation |
 | [FUNCTION_ONLY_FLOW.md](./Flows/FUNCTION_ONLY_FLOW.md) | Function-only mode explanation |
 | [SA_FAILURE_FLOW.md](./Flows/SA_FAILURE_FLOW.md) | Static analysis failure scenarios |
 | [ZIP_MODE_FLOW.md](./Flows/ZIP_MODE_FLOW.md) | ZIP submission requirements |
 
 ---
 
-- **Links**: Use relative paths within documentation
-- **Flow diagrams**: HTML files contain interactive Mermaid charts
+## 📝 DevNotes
+
+Transient analysis, debugging notes, and refactoring plans. These are kept for historical context.
+
+*   `INTERACTIVE_REFACTORING_PLAN.md`
+*   `TEACHER_COMPILE_ERROR_DIAGNOSIS.md`
+*   `TEACHER_LANG_TRACING.md`
+*   `INTERACTIVE_CODE_REVIEW.md`
+*   `INTERACTIVE_COMPREHENSIVE_ANALYSIS.md`
+*   `INTERACTIVE_PERMISSIONS_ANALYSIS.md`
 
 ---
 
 ## 🔄 Recent Changes
 
+**2025-11-30**: Documentation Consolidation
+- Reorganized into `API`, `Architecture`, `Guides`, `Flows`, `DevNotes`
+- Consolidated Path Translation documentation
+- Moved transient analysis files to `DevNotes`
+
 **2025-11-29**: Major documentation expansion
 - Added comprehensive guides: DEPLOYMENT, TESTING, DATABASE_SCHEMA, FRONTEND_DEV, ARTIFACT
 - Updated API_REFERENCE with complete Backend & Sandbox documentation
-- Enhanced CHECKER_SCORING, NETWORK_CONTROL, and SECURITY guides
-- Completed 9 out of 10 planned documentation guides (90%)
-
-**2025-11-29**: Documentation reorganization
-- Created subdirectory structure (Core, Guides, Interactive, Flows)
-- Removed outdated `INTERACTIVE_PERMISSIONS_DIAGNOSIS.md`
-- Added this README for navigation
 
 ---
 
