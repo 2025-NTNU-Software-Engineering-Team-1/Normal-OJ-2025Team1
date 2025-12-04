@@ -130,7 +130,7 @@ if not success:
 **CODE 模式**:
 ```python
 # 直接分析 main.c/cpp/py
-source_path = submission_path / "src" / f"main.{ext}"
+source_path = submission_path / "src" / "common" / f"main.{ext}"
 ```
 
 **ZIP 模式** (調用 `analyze_zip_sources`):

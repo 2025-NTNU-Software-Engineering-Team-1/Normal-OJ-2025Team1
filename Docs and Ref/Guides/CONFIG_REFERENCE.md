@@ -91,7 +91,11 @@
   ```
   working_dir/
   ├── <submission_id>/
-  │   ├── src/         # 學生代碼
+  │   ├── src/
+  │   │   ├── common/      # 編譯產物與原始碼
+  │   │   └── cases/       # 各測試案例執行環境
+  │   │       ├── 0000/
+  │   │       └── ...
   │   ├── teacher/     # 教師代碼（Interactive模式）
   │   └── ...
   └── problem_meta/    # 測資緩存
@@ -396,9 +400,9 @@ docker run --rm -v $(pwd)/submissions/<id>:/cleanup alpine rm -rf /cleanup
 
 ## 相關文檔
 
-- [INTERACTIVE_PERMISSIONS_GUIDE.md](../Interactive/INTERACTIVE_PERMISSIONS_GUIDE.md) - Interactive 模式權限詳解
+- [05_INTERACTIVE.md](./05_INTERACTIVE.md) - Interactive 模式權限詳解
 - [BUILD_STRATEGY_GUIDE.md](./BUILD_STRATEGY_GUIDE.md) - Build Strategy 架構
-- [STATIC_ANALYSIS.md](./STATIC_ANALYSIS.md) - 靜態分析流程
+- [02_STATIC_ANALYSIS.md](./02_STATIC_ANALYSIS.md) - 靜態分析流程
 - [Sandbox/Spec.md](../Sandbox/Spec.md) - 系統規格說明
 
 ---

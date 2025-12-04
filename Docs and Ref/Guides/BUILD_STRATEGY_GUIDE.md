@@ -127,6 +127,8 @@ class BuildStrategyError(ValueError):
        os.chmod(target, target.stat().st_mode | 0o111)
    ```
 
+**注意**: 所有構建操作都在 `src/common` 目錄下進行。構建完成後，Dispatcher 會將此目錄的內容複製到各個 `src/cases/<case_no>` 目錄中進行執行。
+
 **關鍵檢查**:
 - ✅ Makefile 必須存在
 - ✅ 編譯後必須產生唯一的 `a.out`
@@ -186,18 +188,18 @@ class BuildStrategyError(ValueError):
 
 ```
 # 執行前（學生上傳）
-src/
+src/common/
 └── main.c  (學生的函式實作)
 
 # 處理中（解壓教師 makefile.zip 後）
-src/
+src/common/
 ├── Makefile         (教師提供)
 ├── test_main.c      (教師的測試框架)
 ├── function.h       (學生代碼插入此處)
 └── ...
 
 # 執行後（make 完成）
-src/
+src/common/
 ├── main             (最終可執行檔)
 └── ...
 ```
@@ -265,9 +267,10 @@ submission_dir/
 │   ├── Teacher_main     (編譯後的二進位)
 │   └── main             (符號連結或複製)
 └── src/
-    ├── main.c           (學生源碼)
-    ├── Makefile         (ZIP 模式才有)
-    └── main             (編譯後或 rename 的可執行檔)
+    └── common/          (構建目錄)
+        ├── main.c       (學生源碼)
+        ├── Makefile     (ZIP 模式才有)
+        └── main         (編譯後或 rename 的可執行檔)
 ```
 
 **與 FunctionOnly 的區別**:
@@ -556,10 +559,10 @@ result = SubmissionRunner.build_with_make(
 ## 相關文檔
 
 - [CONFIG_REFERENCE.md](./CONFIG_REFERENCE.md) - 配置參數說明
-- [STATIC_ANALYSIS.md](./STATIC_ANALYSIS.md) - 靜態分析流程
+- [02_STATIC_ANALYSIS.md](./02_STATIC_ANALYSIS.md) - 靜態分析流程
 - [BUILD_STRATEGY_FLOW.html](../Flows/BUILD_STRATEGY_FLOW.html) - 流程圖
-- [INTERACTIVE_MODE.md](../Interactive/INTERACTIVE_MODE_FLOW.md) - Interactive 模式詳解
-- [FUNCTION_ONLY_FLOW.md](../Flows/FUNCTION_ONLY_FLOW.md) - FunctionOnly 流程
+- [05_INTERACTIVE.md](./05_INTERACTIVE.md) - Interactive 模式詳解
+- [04_FUNCTION_ONLY.md](./04_FUNCTION_ONLY.md) - FunctionOnly 流程
 
 ---
 

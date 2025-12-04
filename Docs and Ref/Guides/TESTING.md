@@ -431,7 +431,7 @@ def test_prepare_submission_dir(dispatcher, tmp_path):
     # 驗證目錄結構
     submission_dir = tmp_path / submission_id
     assert submission_dir.exists()
-    assert (submission_dir / 'src' / 'main.cpp').exists()
+    assert (submission_dir / 'src' / 'common' / 'main.cpp').exists()
     assert (submission_dir / 'meta.json').exists()
 ```
 

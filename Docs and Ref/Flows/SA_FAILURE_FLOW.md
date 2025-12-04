@@ -65,6 +65,6 @@ sequenceDiagram
 ## Data/Field Mapping (after SA migration)
 - **Sandbox ➜ Backend `/submission/{id}/complete`**: adds `staticAnalysis` payload with `status` (pass/fail/skip), `message`, `report`（組合 rules/violations/facts）。Sandbox 不再處理 MinIO，上傳責任改由後端。
 - **Backend `process_result` 更新**: 寫入 `sa_status` (0=pass, 1=fail，skip 時為 None)、`sa_message`、`sa_report`；若 payload 提供 `reportPath` 則更新 `sa_report_path`，否則後端會把 `report` 文字上傳 MinIO 並寫入新路徑。
-- **Analyzer working dir**: resolves the extracted submission directory (e.g. `.../submissions/{id}/src`) via an explicit `base_dir`, avoiding false “main.c/main.cpp not found” when files are present.
+- **Analyzer working dir**: resolves the extracted submission directory (e.g. `.../submissions/{id}/src/common`) via an explicit `base_dir`, avoiding false “main.c/main.cpp not found” when files are present.
 - **前端呈現**: submission 詳情頁會顯示 SA 狀態 badge（Pass/Fail/Skip）與 `saMessage`，並提供報告文字與下載連結（若後端上傳成功）。
 - **後端測試補強**: 新增 SA 結果處理測試（skip 並上傳報告、保留 reportPath）並確保 ULID 產生路徑使用 `generate_ulid()` fallback，避免相依套件變動造成錯誤。

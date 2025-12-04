@@ -156,7 +156,7 @@ def prepare_make_interactive(
     _prepare_teacher_artifacts(meta=meta, submission_dir=submission_dir)
     
     # Step 3: 檢查學生是否提供Makefile (zip mode)
-    src_dir = submission_dir / "src"
+    src_dir = submission_dir / "src" / "common"
     if (src_dir / "Makefile").exists():
         return _build_plan_for_student_artifacts(
             language=meta.language,
@@ -410,7 +410,7 @@ sequenceDiagram
     B->>S: POST /submit/{id} (problem_id, language, source)
     
     S->>D: extract(source)
-    Note over D: _extract_zip_source()<br/>解壓到submission_dir/src/<br/>檢查Makefile存在
+    Note over D: _extract_zip_source()<br/>解壓到submission_dir/src/common/<br/>檢查Makefile存在
     
     D->>D: prepare_make_interactive()
     Note over D: 1. _ensure_teacher_source()<br/>2. _prepare_teacher_artifacts()<br/>3. Check student Makefile
@@ -445,11 +445,12 @@ sequenceDiagram
 ```
 submission_dir/
 ├── meta.json
-├── src/                    # 學生code
-│   ├── Makefile           # ⭐ Zip模式必須
-│   ├── main.cpp
-│   ├── utils.cpp
-│   └── utils.h
+├── src/
+│   └── common/             # 學生code & build artifacts
+│       ├── Makefile
+│       ├── main.cpp
+│       ├── utils.cpp
+│       └── utils.h
 ├── teacher/               # Teacher code
 │   ├── main.cpp
 │   ├── Teacher_main       # 編譯後的binary
@@ -516,8 +517,9 @@ sequenceDiagram
 ```
 submission_dir/
 ├── meta.json
-├── src/                    # 學生code
-│   └── main.cpp           # ⭐ Code模式只有一個file
+├── src/
+│   └── common/             # 學生code
+│       └── main.cpp
 ├── teacher/               # Teacher code
 │   ├── main.cpp
 │   ├── Teacher_main

@@ -86,7 +86,7 @@ sequenceDiagram
     *   `prepare_function_only_submission` (`dispatcher/build_strategy.py`):
         *   Fetches and extracts the `makefile` asset.
         *   Reads the student's `main.c`/`cpp`/`py`.
-        *   Writes the content to `function.h` (C/C++) or `student_impl.py` (Python).
+        *   Writes the content to `function.h` (C/C++) or `student_impl.py` (Python) in `src/common`.
         *   Returns a `BuildPlan` with `needs_make=True`.
     *   `Dispatcher.run`:
         *   Executes the build using `make`.

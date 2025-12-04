@@ -13,6 +13,7 @@ The Sandbox Dispatcher runs inside a Docker container but spawns new containers 
 1.  **Dispatcher View**: The Dispatcher sees files at a path inside its container (e.g., `/app/submissions/...` or a mounted volume path).
 2.  **Docker Daemon View**: The Docker daemon runs on the host and expects host filesystem paths for bind mounts.
 3.  **The Mismatch**: If the Dispatcher tries to bind a path it sees (e.g., `/app/submissions/...`) to a new container, the Docker daemon will look for that path on the *host*. If the paths don't match, the bind mount fails or mounts the wrong directory.
+4.  **New Structure**: With the introduction of `src/common` (build artifacts) and `src/cases/<case_no>` (execution context), the Dispatcher now manages these specific subdirectories. The `PathTranslator` handles these paths seamlessly as long as they are within the `sandbox_root`.
 
 ### Translation Logic
 

@@ -45,17 +45,22 @@ Detailed guides for each system component.
 
 | Document | Description |
 |----------|-------------|
+| [01_FILE_CONTROL.md](./Guides/01_FILE_CONTROL.md) | File control and asset caching |
+| [02_STATIC_ANALYSIS.md](./Guides/02_STATIC_ANALYSIS.md) | Static analysis (Python AST, C/C++ libclang) |
+| [03_NETWORK_CONTROL.md](./Guides/03_NETWORK_CONTROL.md) | Network access control (firewall, local services) |
+| [04_FUNCTION_ONLY.md](./Guides/04_FUNCTION_ONLY.md) | Function-only mode details |
+| [05_INTERACTIVE.md](./Guides/05_INTERACTIVE.md) | Interactive mode guide |
+| [06_CHECKER.md](./Guides/06_CHECKER.md) | Custom checker system |
+| [07_SCORING.md](./Guides/07_SCORING.md) | Custom scoring system |
+| [08_ARTIFACT.md](./Guides/08_ARTIFACT.md) | Artifact collection (compiled binary, test outputs) |
+| [09_ACCESS_CONTROL.md](./Guides/09_ACCESS_CONTROL.md) | Access control guide |
+| [10_RESOURCE_DATA.md](./Guides/10_RESOURCE_DATA.md) | Resource data guide |
 | [CONFIG_REFERENCE.md](./Guides/CONFIG_REFERENCE.md) | Configuration file reference (dispatcher, submission, interactive) |
 | [BUILD_STRATEGY_GUIDE.md](./Guides/BUILD_STRATEGY_GUIDE.md) | Build strategies (compile, makeNormal, makeFunctionOnly, makeInteractive) |
-| [STATIC_ANALYSIS.md](./Guides/STATIC_ANALYSIS.md) | Static analysis (Python AST, C/C++ libclang) |
-| [CHECKER_SCORING_GUIDE.md](./Guides/CHECKER_SCORING_GUIDE.md) | Custom checker and scoring system |
-| [NETWORK_CONTROL_GUIDE.md](./Guides/NETWORK_CONTROL_GUIDE.md) | Network access control (firewall, local services) |
-| [SECURITY_GUIDE.md](./Guides/SECURITY_GUIDE.md) | Security mechanisms (Seccomp, Docker isolation, risks) |
-| [DEPLOYMENT_GUIDE.md](./Guides/DEPLOYMENT_GUIDE.md) | Production deployment guide (setup, SSL, monitoring, backup) |
-| [TESTING_GUIDE.md](./Guides/TESTING_GUIDE.md) | Testing strategy (pytest, Playwright, CI/CD, coverage) |
-| [FRONTEND_DEV_GUIDE.md](./Guides/FRONTEND_DEV_GUIDE.md) | Frontend development guide (Vue 3, TypeScript, routing, API) |
-| [ARTIFACT_GUIDE.md](./Guides/ARTIFACT_GUIDE.md) | Artifact collection (compiled binary, test outputs) |
-| [InteractivePermissions.md](./Guides/InteractivePermissions.md) | Interactive mode permissions guide |
+| [DEPLOYMENT.md](./Guides/DEPLOYMENT.md) | Deployment guide (Docker Compose, environment variables) |
+| [SECURITY.md](./Guides/SECURITY.md) | Security model (Seccomp, capabilities, resource limits) |
+| [TESTING.md](./Guides/TESTING.md) | Testing strategy (pytest, Playwright, CI/CD, coverage) |
+| [FRONTEND_DEV_GUIDE.md](./FRONTEND_DEV_GUIDE.md) | Frontend development guide (Vue 3, TypeScript, routing, API) |
 
 ---
 
@@ -78,10 +83,8 @@ Interactive Mermaid flowcharts (HTML) with supporting documentation (Markdown).
 
 | Document | Description |
 |----------|-------------|
-| [InteractiveMode.md](./Flows/InteractiveMode.md) | Interactive mode flow explanation |
-| [FUNCTION_ONLY_FLOW.md](./Flows/FUNCTION_ONLY_FLOW.md) | Function-only mode explanation |
+| [InteractiveMode.md](./Architecture/InteractiveMode.md) | Interactive mode architecture |
 | [SA_FAILURE_FLOW.md](./Flows/SA_FAILURE_FLOW.md) | Static analysis failure scenarios |
-| [ZIP_MODE_FLOW.md](./Flows/ZIP_MODE_FLOW.md) | ZIP submission requirements |
 
 ---
 
@@ -99,6 +102,12 @@ Transient analysis, debugging notes, and refactoring plans. These are kept for h
 ---
 
 ## 🔄 Recent Changes
+
+**2025-12-03**: Documentation Reorganization
+- Reorganized Guides with numbered prefixes.
+- Merged File Control and Asset Caching.
+- Merged Interactive Mode documentation.
+- Split Checker and Scoring guides.
 
 **2025-11-30**: Documentation Consolidation
 - Reorganized into `API`, `Architecture`, `Guides`, `Flows`, `DevNotes`
