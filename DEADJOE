@@ -1,0 +1,18 @@
+
+*** These modified files were found in JOE when it aborted on Sun Dec  7 00:43:27 2025
+*** JOE was aborted by UNIX signal 1
+
+*** 檔案「/home/sleepymanta/software-engineering/Normal-OJ-2025Team1/.git/MERGE_MSG」
+kMerge branch 'main' of https://github.com/2025-NTNU-Software-Engineering-Team-1/Normal-OJ-2025Team1
+# Please enter a commit message to explain why this merge is necessary,
+# especially if it merges an updated upstream into a topic branch.
+#
+# Lines starting with '#' will be ignored, and an empty message aborts
+# the commit .
+*** 檔案「(未命名)」
+/home/sleepymanta/software-engineering/f4/Back-End-2025Team1/.git/COMMIT_EDITMSG
+/home/sleepymanta/software-engineering/Normal-OJ-2025Team1/.git/MERGE_MSG
+
+*** 檔案「* Startup Log *」
+處理「/etc/joe/editorrc」…處理「/etc/joe/ftyperc」…Finished processing /etc/joe/ftyperc
+Finished processing /etc/joe/editorrc
