@@ -101,7 +101,20 @@ Transient analysis, debugging notes, and refactoring plans. These are kept for h
 
 ---
 
+## 📊 Branch Analysis
+
+| Document | Description |
+|----------|-------------|
+| [BRANCH_DIFF_SUMMARY.md](./BRANCH_DIFF_SUMMARY.md) | Detailed comparison between `merge-network-to-execution` and `main` branches |
+| [CODE_REVIEW_PLAN.md](./CODE_REVIEW_PLAN.md) | Code review findings and improvement plan with todos tracking |
+
+---
+
 ## 🔄 Recent Changes
+
+**2025-12-10**: Branch Analysis & Code Review
+- Added BRANCH_DIFF_SUMMARY.md documenting differences between merge-network-to-execution and main branches
+- Added CODE_REVIEW_PLAN.md with comprehensive code review findings and improvement tracking
 
 **2025-12-03**: Documentation Reorganization
 - Reorganized Guides with numbered prefixes.
