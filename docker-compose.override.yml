@@ -25,10 +25,9 @@ services:
       - MINIO_BUCKET=normal-oj-testing
       - SMTP_SERVER=smtp-relay.brevo.com
       - SMTP_PORT=587
-      - SMTP_NOREPLY=wows940522@gmail.com
-      - SMTP_USERNAME=9ea427001@smtp-brevo.com
-      - SMTP_NOREPLY_PASSWORD=${BREVO_SMTP_KEY}
       - SERVER_NAME=localhost:8080
+    env_file:
+      - .secret/web.env
     volumes:
       - ./Back-End:/app
   minio:
