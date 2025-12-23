@@ -23,7 +23,6 @@ services:
       - MINIO_ACCESS_KEY=normal-oj-testing
       - MINIO_SECRET_KEY=normal-oj-testing-secret
       - MINIO_BUCKET=normal-oj-testing
-      # Brevo SMTP 設定
       - SMTP_SERVER=smtp-relay.brevo.com
       - SMTP_PORT=587
       - SMTP_NOREPLY=wows940522@gmail.com
