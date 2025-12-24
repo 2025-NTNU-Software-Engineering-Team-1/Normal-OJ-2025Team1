@@ -193,7 +193,7 @@ def prepare_make_interactive(
            raise BuildStrategyError(f"teacher compile failed: {err_msg}")
        
        # 確保binary存在
-       binary = teacher_dir / "Teacher_main"
+       binary = teacher_dir / "teacher_main"
        if not binary.exists():
            raise BuildStrategyError("teacher binary missing after compile")
    ```
@@ -453,8 +453,8 @@ submission_dir/
 │       └── utils.h
 ├── teacher/               # Teacher code
 │   ├── main.cpp
-│   ├── Teacher_main       # 編譯後的binary
-│   └── main               # 軟連結到Teacher_main
+│   ├── teacher_main       # 編譯後的binary
+│   └── main               # 軟連結到teacher_main
 └── testcase/
     ├── 00/
     │   ├── 00.in
@@ -522,7 +522,7 @@ submission_dir/
 │       └── main.cpp
 ├── teacher/               # Teacher code
 │   ├── main.cpp
-│   ├── Teacher_main
+│   ├── teacher_main
 │   └── main
 └── testcase/
     └── ...

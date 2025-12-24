@@ -242,7 +242,7 @@ src/common/
 
    - **創建執行檔連結**:
      ```python
-     binary = teacher_dir / "Teacher_main"
+     binary = teacher_dir / "teacher_main"
      main_exec = teacher_dir / "main"
      os.link(binary, main_exec)  # 或 shutil.copy
      ```
@@ -264,7 +264,7 @@ src/common/
 submission_dir/
 ├── teacher/
 │   ├── main.c           (教師源碼)
-│   ├── Teacher_main     (編譯後的二進位)
+│   ├── teacher_main     (編譯後的二進位)
 │   └── main             (符號連結或複製)
 └── src/
     └── common/          (構建目錄)

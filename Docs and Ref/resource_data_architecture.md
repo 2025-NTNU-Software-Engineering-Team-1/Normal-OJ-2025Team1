@@ -51,10 +51,10 @@ submissions/{submission_id}/
 │           └── input.bmp                  # 從 resource_data 複製（去前綴）
 └── teacher/                               # Teacher 結構（與 src 相同）
     ├── common/                            # Teacher 程式（Interactive 編譯用）
-    │   └── Teacher_main (或 main.py)
+    │   └── teacher_main (或 main.py)
     └── cases/                             # 每個 Case 獨立目錄
         └── 0000/
-            ├── Teacher_main               # 複製自 teacher/common
+            ├── teacher_main               # 複製自 teacher/common
             ├── testcase.in                # 從 testcase/0000.in 複製
             └── solution.bmp               # 從 resource_data_teacher 複製（去前綴）
 ```
@@ -165,7 +165,7 @@ submissions/{submission_id}/
 ┌─────────────────────────────────────────────────────────┐
 │ 7. prepare_teacher_for_case()                           │
 │    - 建立 teacher/cases/{case_no}/                      │
-│    - 複製 Teacher_main 從 teacher/common/               │
+│    - 複製 teacher_main 從 teacher/common/               │
 │    - 複製 testcase/{case_no}.in → testcase.in           │
 │    - 複製 resource_data_teacher（去前綴）                │
 └─────────────────────────────────────────────────────────┘

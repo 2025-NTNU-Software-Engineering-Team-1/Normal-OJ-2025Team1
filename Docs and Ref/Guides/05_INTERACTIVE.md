@@ -46,7 +46,7 @@ class Meta(BaseModel):
 - Writes to `teacher/main.{c,cpp,py}`.
 
 #### 1.2 Teacher Program Compilation
-- **C/C++**: Compiled using `SubmissionRunner.compile_at_path`. Generates `Teacher_main` binary.
+- **C/C++**: Compiled using `SubmissionRunner.compile_at_path`. Generates `teacher_main` binary.
 - **Python**: Uses `teacher/main.py` directly.
 
 #### 1.3 Student Program Build
