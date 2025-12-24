@@ -23,6 +23,11 @@ services:
       - MINIO_ACCESS_KEY=normal-oj-testing
       - MINIO_SECRET_KEY=normal-oj-testing-secret
       - MINIO_BUCKET=normal-oj-testing
+      - SMTP_SERVER=smtp-relay.brevo.com
+      - SMTP_PORT=587
+      - SERVER_NAME=localhost:8080
+    env_file:
+      - .secret/web.env
     volumes:
       - ./Back-End:/app
   minio:
