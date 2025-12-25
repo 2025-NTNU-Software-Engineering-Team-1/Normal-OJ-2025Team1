@@ -4,6 +4,8 @@
 }
 
 {$SITE_ADDRESS} {
+	# TODO: Remove this when proper SSL certificate is configured (e.g., via Cloudflare or Let's Encrypt)
+	# tls internal
 	# https://developers.cloudflare.com/fundamentals/reference/http-request-headers/#cf-connecting-ip
 	@fromCloudflare {
 		header ​​CF-Connecting-IP *
@@ -22,10 +24,22 @@
 	metrics /metrics
 
 	handle @fromCloudflare {
-		reverse_proxy web:8080 {
-			header_up X-Forwarded-For "{header.X-Forwarded-For}, {header.​CF-Connecting-IP}"
+		handle /api/* {
+			uri strip_prefix /api
+			reverse_proxy web:8080 {
+				header_up X-Forwarded-For "{header.X-Forwarded-For}, {header.CF-Connecting-IP}"
+			}
+		}
+		handle {
+			reverse_proxy frontend:80
 		}
 	}
 
-	reverse_proxy web:8080
+	handle /api/* {
+		uri strip_prefix /api
+		reverse_proxy web:8080
+	}
+	handle {
+		reverse_proxy frontend:80
+	}
 }

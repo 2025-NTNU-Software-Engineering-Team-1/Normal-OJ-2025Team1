@@ -80,3 +80,51 @@ Now you could visit http://localhost:8080 to see the NOJ page.
 Login with the admin with
 - username: `first_admin`
 - password: `firstpasswordforadmin`
+
+## Production Deployment
+
+### Prerequisites
+
+1. Docker and Docker Compose installed
+2. Domain name configured (for HTTPS via Caddy)
+3. Environment files created in `.secret/` directory
+
+### Environment Files Setup
+
+Copy the example secrets folder and modify the values:
+
+```bash
+cp -r .secret.example .secret
+```
+
+Then edit the files in `.secret/` to set your own values:
+- `caddy.env` - Set `SITE_ADDRESS` to your domain
+- `web.env` - Backend configuration
+- `minio.env` - MinIO credentials
+- `mongo-express.env` - MongoDB Express login (optional)
+- `sandbox.env` - Sandbox configuration
+
+### Deploy
+
+```bash
+# Build and start all services
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+
+# View logs
+docker compose -f docker-compose.yml -f docker-compose.prod.yml logs -f
+
+# Restart specific service
+docker compose -f docker-compose.yml -f docker-compose.prod.yml restart [service]
+
+# Stop all services
+docker compose -f docker-compose.yml -f docker-compose.prod.yml down
+```
+
+### Architecture
+
+In production:
+- **Caddy** serves as the reverse proxy with automatic HTTPS
+- **Frontend** runs as a static file server (Caddy) with SPA fallback
+- `/api/*` requests are proxied to the backend
+- All other requests are served by the frontend
+
