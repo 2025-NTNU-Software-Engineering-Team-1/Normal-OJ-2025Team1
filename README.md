@@ -75,6 +75,18 @@ Refer to the `docker-compose.override.yml` file for the following configurations
 
 ### Visit the local NOJ page
 
+### SMTP Configuration
+
+Place SMTP-related environment variables in `.secret/web.env` and ensure `.secret` is ignored by git.
+
+Example `.secret/web.env` contents:
+
+SMTP_NOREPLY=sender_email
+SMTP_USERNAME=your_smtp_user_name
+SMTP_NOREPLY_PASSWORD=smtp_api_key
+
+When deploying, make sure your deployment process reads `.secret/web.env` and sets the environment variables for the backend service. Do not push `.secret/web.env` to any remote repository.
+
 Now you could visit http://localhost:8080 to see the NOJ page.
 
 Login with the admin with
