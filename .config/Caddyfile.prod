@@ -1,25 +1,16 @@
-(cors) {
-	@origin{args.0} header_regexp origin Origin {args.0}
-	header @origin{args.0} Access-Control-Allow-Origin {re.origin.0}
-}
-
 {$SITE_ADDRESS} {
 	# TODO: Remove this when proper SSL certificate is configured (e.g., via Cloudflare or Let's Encrypt)
-	# tls internal
+	# Using internal TLS because firewall blocks Let's Encrypt validation (port 80/443)
+	tls internal
 	# https://developers.cloudflare.com/fundamentals/reference/http-request-headers/#cf-connecting-ip
 	@fromCloudflare {
 		header ​​CF-Connecting-IP *
 	}
 
 	log
-	header Access-Control-Allow-Headers Content-Type
-	header Access-Control-Allow-Methods "OPTIONS, GET, POST, PUT, DELETE, HEAD, PATCH"
-	header Access-Control-Allow-Credentials true
 
-	# TODO: use env var to control allow origin, or move these to flask
-	import cors "https://([^.]+\.)?nfe\.pages\.dev"
-	import cors "https://([^.]+\.)?noj\.tw"
-	import cors "http://localhost(:\d+)?"
+	# CORS is now handled by Flask backend (see Back-End/model/utils/security.py)
+	# Configure allowed origins via CORS_ALLOWED_ORIGINS environment variable in web.env
 
 	metrics /metrics
 
