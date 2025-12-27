@@ -1,0 +1,176 @@
+# =============================================================================
+# deploy-cloud.yml - GCE 雲端部署工作流程 (Code Mount 模式)
+# =============================================================================
+#
+# 此工作流程用於將 Normal-OJ 部署到 GCP GCE VM
+# 使用 Code Mount 模式：程式碼透過 Git 同步，容器掛載本地目錄
+#
+# 觸發方式：
+#   - 手動觸發 (workflow_dispatch)
+#   - 可選擇 restart 或 rebuild 模式
+#
+# 必要的 GitHub Secrets：
+#   - DEPLOY_USER: GCE SSH 用戶名
+#   - DEPLOY_HOST: GCE 外部 IP 或域名
+#   - DEPLOY_SSH_KEY: SSH 私鑰 (對應 GCE 上的公鑰)
+#
+# =============================================================================
+
+name: Deploy to Cloud (Code Mount)
+
+on:
+  # -----------------------------------------------------------------------------
+  # 手動觸發
+  # -----------------------------------------------------------------------------
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: '部署模式'
+        required: true
+        default: 'restart'
+        type: choice
+        options:
+          - restart   # 快速更新：git pull + restart
+          - rebuild   # 完整重建：git pull + rebuild all
+
+  # -----------------------------------------------------------------------------
+  # 自動觸發 (可選 - 取消註解以啟用)
+  # -----------------------------------------------------------------------------
+  # push:
+  #   branches:
+  #     - main
+  #   paths:
+  #     - 'Back-End/**'
+  #     - 'Sandbox/**'
+  #     - 'docker-compose*.yml'
+  #     - '.config/**'
+
+jobs:
+  deploy:
+    name: Deploy to GCE
+    runs-on: ubuntu-latest
+
+    # ---------------------------------------------------------------------------
+    # 環境設定
+    # ---------------------------------------------------------------------------
+    environment:
+      name: production
+      url: https://api.nojteam.com
+
+    env:
+      DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+      DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+      DEPLOY_PATH: /opt/noj/app
+
+    steps:
+      # -------------------------------------------------------------------------
+      # Step 1: 檢出程式碼
+      # -------------------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # -------------------------------------------------------------------------
+      # Step 2: 設定 SSH
+      # -------------------------------------------------------------------------
+      # 使用 webfactory/ssh-agent 設定 SSH agent
+      # 這樣可以安全地使用 SSH 私鑰進行遠端連線
+      # -------------------------------------------------------------------------
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
+      # -------------------------------------------------------------------------
+      # Step 3: 加入 Host 到 known_hosts
+      # -------------------------------------------------------------------------
+      # 避免 SSH 連線時的 host key verification 提示
+      # -------------------------------------------------------------------------
+      - name: Add host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts
+
+      # -------------------------------------------------------------------------
+      # Step 4: 檢查遠端伺服器狀態
+      # -------------------------------------------------------------------------
+      - name: Check remote server status
+        run: |
+          echo "Testing SSH connection..."
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" "echo 'SSH connection successful' && docker --version && docker compose version"
+
+      # -------------------------------------------------------------------------
+      # Step 5: 執行部署
+      # -------------------------------------------------------------------------
+      # 連線到 GCE VM 並執行 deploy-cloud.sh
+      # 腳本會自動 git pull 並根據模式重啟或重建容器
+      # -------------------------------------------------------------------------
+      - name: Execute deployment
+        run: |
+          echo "Deploying with mode: ${{ github.event.inputs.mode }}"
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" \
+            "cd '$DEPLOY_PATH' && ./deploy-cloud.sh ${{ github.event.inputs.mode }}"
+
+      # -------------------------------------------------------------------------
+      # Step 6: 驗證部署
+      # -------------------------------------------------------------------------
+      # 等待服務啟動後執行健康檢查
+      # -------------------------------------------------------------------------
+      - name: Verify deployment
+        run: |
+          echo "Waiting for services to start..."
+          sleep 20
+
+          echo "Checking API health..."
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" \
+            "curl -sf http://localhost:8080/api/health && echo '✓ Backend API is healthy' || echo '✗ Backend API health check failed'"
+
+          echo ""
+          echo "Checking container status..."
+          ssh "$DEPLOY_USER@$DEPLOY_HOST" \
+            "cd '$DEPLOY_PATH' && docker compose -f docker-compose.yml -f docker-compose.cloud.yml ps"
+
+      # -------------------------------------------------------------------------
+      # Step 7: 部署結果通知 (可選)
+      # -------------------------------------------------------------------------
+      # 可以加入 Slack, Discord, Email 等通知
+      # -------------------------------------------------------------------------
+      # - name: Notify deployment result
+      #   if: always()
+      #   uses: 8398a7/action-slack@v3
+      #   with:
+      #     status: ${{ job.status }}
+      #     fields: repo,message,commit,author,action,eventName,ref,workflow
+      #   env:
+      #     SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+# =============================================================================
+# 設定說明
+# =============================================================================
+#
+# 1. GitHub Secrets 設定：
+#    到 Repository Settings > Secrets and variables > Actions 新增：
+#
+#    | Secret | 說明 | 範例 |
+#    |--------|------|------|
+#    | DEPLOY_USER | SSH 用戶名 | noj |
+#    | DEPLOY_HOST | GCE 外部 IP | 35.xxx.xxx.xxx |
+#    | DEPLOY_SSH_KEY | SSH 私鑰 | -----BEGIN OPENSSH... |
+#
+# 2. GCE VM 設定：
+#    a. 建立 SSH 金鑰對：
+#       ssh-keygen -t ed25519 -C "github-actions" -f ~/.ssh/github_deploy
+#
+#    b. 將公鑰加入 GCE VM：
+#       - GCP Console > Compute Engine > VM instances
+#       - 點擊 VM > Edit > SSH Keys > Add item
+#       - 貼上 ~/.ssh/github_deploy.pub 內容
+#
+#    c. 將私鑰加入 GitHub Secrets (DEPLOY_SSH_KEY)
+#
+# 3. 首次部署前，需要在 GCE VM 上：
+#    a. 安裝 Docker 和 Docker Compose
+#    b. Git clone 專案到 /opt/noj/app
+#    c. 設定 .secret/*.env 檔案
+#    d. 執行 ./deploy-cloud.sh rebuild
+#
+# =============================================================================

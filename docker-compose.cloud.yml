@@ -1,0 +1,179 @@
+# =============================================================================
+# docker-compose.cloud.yml - GCE 雲端部署配置
+# =============================================================================
+#
+# 用法:
+#   docker compose -f docker-compose.yml -f docker-compose.cloud.yml up -d
+#
+# 此檔案覆蓋 docker-compose.yml 的設定，專門用於 GCP GCE VM 部署
+#
+# 架構說明:
+#   - 使用 Code Mount 模式：程式碼透過 Git 同步，容器掛載本地目錄
+#   - MinIO 使用 network_mode: "service:web" 共享網路，支援 presigned URLs
+#   - Caddy 處理 SSL 憑證自動申請和反向代理
+#
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Caddy - 反向代理與 SSL 終端
+  # ---------------------------------------------------------------------------
+  # 功能：
+  #   - 自動申請 Let's Encrypt SSL 憑證
+  #   - 反向代理 API 請求到 web 容器
+  #   - 處理 CORS headers
+  # ---------------------------------------------------------------------------
+  caddy:
+    restart: unless-stopped
+    ports:
+      - "80:80"      # HTTP (用於 ACME challenge 和重導向)
+      - "443:443"    # HTTPS
+    volumes:
+      # 使用雲端版 Caddyfile
+      - ./.config/Caddyfile.cloud:/etc/caddy/Caddyfile
+      # Caddy 資料目錄 (儲存 SSL 憑證)
+      - ./.caddy:/data
+    env_file:
+      - .secret/caddy.env
+    # 健康檢查
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # Web (Backend) - Flask API 服務
+  # ---------------------------------------------------------------------------
+  # 功能：
+  #   - 提供 REST API
+  #   - 連接 MongoDB, Redis, MinIO
+  #   - Code Mount 模式：掛載 ./Back-End 目錄
+  # ---------------------------------------------------------------------------
+  web:
+    build:
+      context: ./Back-End
+      # 使用 development target 以支援 code mount
+      target: development
+    restart: unless-stopped
+    ports:
+      # MinIO API port - 用於 presigned URLs
+      # 瀏覽器需要直接存取 MinIO 來上傳/下載檔案
+      - "9000:9000"
+      # MinIO Console port - 管理介面
+      - "9001:9001"
+    env_file:
+      - .secret/web.env
+    environment:
+      # 資料庫連線
+      - MONGO_HOST=mongo
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      # MinIO 設定 (使用 localhost 因為 network_mode: service:web)
+      - MINIO_HOST=localhost:9000
+      - MINIO_SECURE=false
+      # 安全設定
+      - FORCE_SECURE_COOKIES=true
+    volumes:
+      # Code Mount - 掛載後端程式碼
+      - ./Back-End:/app
+      # Log 目錄
+      - ./logs/web:/app/logs
+    # 健康檢查
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - mongo
+      - redis
+
+  # ---------------------------------------------------------------------------
+  # Sandbox - 程式碼執行沙盒
+  # ---------------------------------------------------------------------------
+  # 功能：
+  #   - 安全地執行使用者提交的程式碼
+  #   - 使用 Docker-in-Docker 建立隔離環境
+  #   - 支援多種程式語言 (C/C++, Python, etc.)
+  # ---------------------------------------------------------------------------
+  sandbox:
+    build: ./Sandbox
+    restart: unless-stopped
+    # 需要 privileged 權限來執行 Docker-in-Docker
+    privileged: true
+    env_file:
+      - .secret/sandbox.env
+    environment:
+      # Sidecar 映像名稱 (由 build.sh 建立)
+      - CCPP_IMAGE=${CCPP_IMAGE:-noj-c-cpp}
+      - PY3_IMAGE=${PY3_IMAGE:-noj-py3}
+    volumes:
+      # Code Mount - 掛載沙盒程式碼
+      - ./Sandbox:/app
+      # Docker socket - 用於 Docker-in-Docker
+      - /var/run/docker.sock:/var/run/docker.sock
+      # 提交檔案暫存目錄
+      - ./Sandbox/submissions:/app/submissions
+      # Log 目錄
+      - ./Sandbox/logs:/app/logs
+    depends_on:
+      - web
+
+  # ---------------------------------------------------------------------------
+  # MinIO - 物件儲存服務
+  # ---------------------------------------------------------------------------
+  # 功能：
+  #   - 儲存測試案例、提交程式碼、靜態分析報告
+  #   - 支援 S3 相容 API
+  #   - 使用 presigned URLs 讓瀏覽器直接上傳/下載
+  #
+  # 重要：network_mode: "service:web"
+  #   - MinIO 與 web 容器共享網路命名空間
+  #   - 這樣 presigned URLs 會是 localhost:9000
+  #   - web 容器的 ports 9000/9001 實際上是 MinIO 的
+  # ---------------------------------------------------------------------------
+  minio:
+    image: quay.io/minio/minio:RELEASE.2025-04-22T22-12-26Z
+    # 關鍵設定：共享 web 容器的網路
+    network_mode: "service:web"
+    restart: unless-stopped
+    env_file:
+      - .secret/minio.env
+    command: ["server", "/data", "--console-address", ":9001"]
+    volumes:
+      # 資料持久化目錄
+      - /opt/noj/minio:/data
+    # 注意：因為 network_mode: service:web，不能在這裡設定 ports
+    # MinIO 的 port 由 web 服務的 ports 設定控制
+
+  # ---------------------------------------------------------------------------
+  # MongoDB - 主要資料庫
+  # ---------------------------------------------------------------------------
+  mongo:
+    restart: unless-stopped
+    volumes:
+      # 資料持久化目錄
+      - /opt/noj/mongodb:/data/db
+    # 健康檢查
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ---------------------------------------------------------------------------
+  # Redis - 快取與任務佇列
+  # ---------------------------------------------------------------------------
+  redis:
+    restart: unless-stopped
+    volumes:
+      # 資料持久化目錄
+      - /opt/noj/redis:/data
+    # 健康檢查
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
