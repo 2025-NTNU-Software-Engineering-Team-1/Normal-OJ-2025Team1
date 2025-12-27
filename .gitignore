@@ -13,3 +13,6 @@ redis-data/
 # Poetry Log Files
 *.log
 Docs and Ref/DevNotes.env
+
+# Agent artifacts
+.agent/

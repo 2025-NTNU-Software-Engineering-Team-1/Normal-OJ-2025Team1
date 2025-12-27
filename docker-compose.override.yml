@@ -8,7 +8,10 @@ services:
   vue:
     build: ./new-front-end
     environment:
-      - VITE_APP_API_BASE_URL=http://localhost:8080/api
+      - VITE_APP_API_BASE_URL=/api
+      - VITE_SKIP_AUTH=true
+      - VITE_SKIP_AUTH_USERNAME=first_admin
+      - VITE_SKIP_AUTH_PASSWORD=virtualmachine
     volumes:
       - ./new-front-end:/app
       - exclude:/app/node_modules
