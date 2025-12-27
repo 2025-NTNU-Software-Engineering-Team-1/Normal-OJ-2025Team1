@@ -1,7 +1,7 @@
 {$SITE_ADDRESS} {
-	# TODO: Remove this when proper SSL certificate is configured (e.g., via Cloudflare or Let's Encrypt)
-	# Using internal TLS because firewall blocks Let's Encrypt validation (port 80/443)
+	# Reverted to internal TLS due to external firewall blocking Let's Encrypt validation
 	tls internal
+
 	# https://developers.cloudflare.com/fundamentals/reference/http-request-headers/#cf-connecting-ip
 	@fromCloudflare {
 		header ​​CF-Connecting-IP *
