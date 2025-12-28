@@ -1,31 +1,36 @@
-(cors) {
-	@origin{args.0} header_regexp origin Origin {args.0}
-	header @origin{args.0} Access-Control-Allow-Origin {re.origin.0}
-}
-
 {$SITE_ADDRESS} {
+	# Reverted to internal TLS due to external firewall blocking Let's Encrypt validation
+	tls internal
+
 	# https://developers.cloudflare.com/fundamentals/reference/http-request-headers/#cf-connecting-ip
 	@fromCloudflare {
 		header ​​CF-Connecting-IP *
 	}
 
 	log
-	header Access-Control-Allow-Headers Content-Type
-	header Access-Control-Allow-Methods "OPTIONS, GET, POST, PUT, DELETE, HEAD, PATCH"
-	header Access-Control-Allow-Credentials true
 
-	# TODO: use env var to control allow origin, or move these to flask
-	import cors "https://([^.]+\.)?nfe\.pages\.dev"
-	import cors "https://([^.]+\.)?noj\.tw"
-	import cors "http://localhost(:\d+)?"
+	# CORS is now handled by Flask backend (see Back-End/model/utils/security.py)
+	# Configure allowed origins via CORS_ALLOWED_ORIGINS environment variable in web.env
 
 	metrics /metrics
 
 	handle @fromCloudflare {
-		reverse_proxy web:8080 {
-			header_up X-Forwarded-For "{header.X-Forwarded-For}, {header.​CF-Connecting-IP}"
+		handle /api/* {
+			uri strip_prefix /api
+			reverse_proxy web:8080 {
+				header_up X-Forwarded-For "{header.X-Forwarded-For}, {header.CF-Connecting-IP}"
+			}
+		}
+		handle {
+			reverse_proxy frontend:80
 		}
 	}
 
-	reverse_proxy web:8080
+	handle /api/* {
+		uri strip_prefix /api
+		reverse_proxy web:8080
+	}
+	handle {
+		reverse_proxy frontend:80
+	}
 }

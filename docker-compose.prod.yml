@@ -41,3 +41,11 @@ services:
     command: ["server", "/data", "--console-address", ":9001"]
     volumes:
       - /opt/noj/minio:/data
+
+  frontend:
+    build:
+      context: ./new-front-end
+      dockerfile: Dockerfile.prod
+    restart: unless-stopped
+    expose:
+      - "80"
