@@ -85,7 +85,7 @@ check_prerequisites() {
     fi
 
     # 檢查必要的環境變數檔案
-    local required_env_files=(".secret/web.env" ".secret/minio.env" ".secret/caddy.env")
+    local required_env_files=(".secret/web.env" ".secret/minio.env" ".secret/caddy.env" ".secret/sandbox.env")
     for env_file in "${required_env_files[@]}"; do
         if [ ! -f "$env_file" ]; then
             log_error "缺少環境變數檔案: $env_file"
@@ -122,15 +122,19 @@ ensure_directories() {
 update_code() {
     log_info "更新程式碼..."
 
+    # 取得目前分支名稱
+    local current_branch=$(git rev-parse --abbrev-ref HEAD)
+    log_info "目前分支: $current_branch"
+
     # 拉取主專案最新程式碼
-    git pull origin main
+    git pull origin "$current_branch"
 
     # 更新 Git submodules (Back-End, Sandbox)
     git submodule update --init --recursive
 
-    # 進入各 submodule 拉取最新程式碼
-    log_info "更新 Back-End submodule..."
-    git submodule foreach 'git checkout main && git pull origin main || true'
+    # 進入各 submodule 拉取最新程式碼 (使用各自的目前分支)
+    log_info "更新 submodules..."
+    git submodule foreach 'branch=$(git rev-parse --abbrev-ref HEAD); git pull origin "$branch" || true'
 
     log_success "程式碼更新完成"
 }
