@@ -105,10 +105,10 @@ services:
     privileged: true
     env_file:
       - .secret/sandbox.env
-    environment:
+    # environment:
       # Sidecar 映像名稱 (由 build.sh 建立)
-      - CCPP_IMAGE=${CCPP_IMAGE:-noj-c-cpp}
-      - PY3_IMAGE=${PY3_IMAGE:-noj-py3}
+      # CCPP_IMAGE=${CCPP_IMAGE:-noj-c-cpp}
+      # PY3_IMAGE=${PY3_IMAGE:-noj-py3}
     volumes:
       # Code Mount - 掛載沙盒程式碼
       - ./Sandbox:/app
